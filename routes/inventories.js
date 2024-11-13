@@ -8,14 +8,9 @@ const knex = initKnex(configuration);
 // Route to get list of all inventory items
 router.route("/").get(async (req, res) => {
   try {
-    const inventories = await knex("instock.inventories")
+    const inventories = await knex("inventories")
       // Join to get warehouse name from warehouse table
-      .join(
-        "instock.warehouses",
-        "inventories.warehouse_id",
-        "=",
-        "warehouses.id"
-      )
+      .join("warehouses", "inventories.warehouse_id", "=", "warehouses.id")
       .select(
         "inventories.id",
         "warehouses.warehouse_name as warehouse_name",
