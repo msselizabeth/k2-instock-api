@@ -67,7 +67,7 @@ const deleteWarehouseByID = async (req, res) => {
         "warehouses.contact_phone",
         "warehouses.contact_email"
       )
-      .where({ id })
+      .where("warehouses.id",id)
       .first();
 
     if (!warehouseItem) {
@@ -75,9 +75,9 @@ const deleteWarehouseByID = async (req, res) => {
     }
 
     await knex("warehouses")
-      .where({ id })
+      .where("warehouses.id",id)
       .del();
-    res.status(204).json({ message: `Warehouse with ID ${id} deleted successfully` });
+    res.status(204).send();
 
   } catch (error) {
     res.status(500).json({ message: `Error deleting warehouse with Id: ${id}` });
