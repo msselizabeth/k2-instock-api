@@ -134,11 +134,22 @@ const updateWarehouse = async (req, res) => {
     !city ||
     !country ||
     !contact_name ||
-    !contact_position ||
-    !contact_phone ||
-    !contact_email
+    !contact_position
   ) {
     return res.status(400).json({ message: "All fields must be filled out" });
+  }
+
+  // Email validation
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!contact_email.trim() || !emailRegex.test(contact_email)) {
+    return res.status(400).json({ message: "Invalid email format" });
+  }
+
+  // Phone number validation
+  const phoneRegex =
+    /^\+?[1-9]{1}[0-9]{1,14}(\s?\(?\d{1,4}\)?[\s\-]?\d{1,4}[\s\-]?\d{1,4})$/;
+  if (!contact_phone.trim() || !phoneRegex.test(contact_phone)) {
+    return res.status(400).json({ message: "Invalid phone number format" });
   }
 
   try {
@@ -152,17 +163,17 @@ const updateWarehouse = async (req, res) => {
     }
 
     const updateData = {
-      warehouse_name,
-      address,
-      city,
-      country,
-      contact_name,
-      contact_position,
-      contact_phone,
-      contact_email,
+      warehouse_name: warehouse_name.trim(),
+      address: address.trim(),
+      city: city.trim(),
+      country: country.trim(),
+      contact_name: contact_name.trim(),
+      contact_position: contact_position.trim(),
+      contact_phone: contact_phone.trim(),
+      contact_email: contact_email.trim(),
     };
 
-    await knex("warehouses").where("id",warehouseID).update(updateData);
+    await knex("warehouses").where("id", warehouseId).update(updateData);
 
     const updatedWarehouse = await knex("warehouses")
       .select(
@@ -176,13 +187,10 @@ const updateWarehouse = async (req, res) => {
         "warehouses.contact_phone",
         "warehouses.contact_email"
       )
-      .where("warehouses.id,warehosueId")
+      .where("warehouses.id", warehouseId)
       .first();
 
-    res.json({
-      message: "Warehouse updated successfully",
-      warehouse: updatedWarehouse,
-    });
+    res.status(200).json({});
   } catch (error) {
     res.status(500).json({ message: "Error updating warehouse", error });
   }
