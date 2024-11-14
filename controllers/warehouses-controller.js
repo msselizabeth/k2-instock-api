@@ -129,25 +129,26 @@ const updateWarehouse = async (req, res) => {
   } = req.body;
 
   if (
-    !warehouse_name ||
-    !address ||
-    !city ||
-    !country ||
-    !contact_name ||
-    !contact_position
+    !warehouse_name.trim() ||
+    !address.trim() ||
+    !city.trim() ||
+    !country.trim() ||
+    !contact_name.trim() ||
+    !contact_position.trim()
   ) {
     return res.status(400).json({ message: "All fields must be filled out" });
   }
 
   // Email validation
-  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!contact_email.trim() || !emailRegex.test(contact_email)) {
     return res.status(400).json({ message: "Invalid email format" });
   }
 
   // Phone number validation
   const phoneRegex =
-    /^\+?[1-9]{1}[0-9]{1,14}(\s?\(?\d{1,4}\)?[\s\-]?\d{1,4}[\s\-]?\d{1,4})$/;
+    /^(\+?\d{1,2})?\s?\(?(\d{3})\)?[-. ]?(\d{3})[-. ]?(\d{4})$/;
+
   if (!contact_phone.trim() || !phoneRegex.test(contact_phone)) {
     return res.status(400).json({ message: "Invalid phone number format" });
   }
@@ -163,14 +164,14 @@ const updateWarehouse = async (req, res) => {
     }
 
     const updateData = {
-      warehouse_name: warehouse_name.trim(),
-      address: address.trim(),
-      city: city.trim(),
-      country: country.trim(),
-      contact_name: contact_name.trim(),
-      contact_position: contact_position.trim(),
-      contact_phone: contact_phone.trim(),
-      contact_email: contact_email.trim(),
+      warehouse_name: warehouse_name,
+      address: address,
+      city: city,
+      country: country,
+      contact_name: contact_name,
+      contact_position: contact_position,
+      contact_phone: contact_phone,
+      contact_email: contact_email,
     };
 
     await knex("warehouses").where("id", warehouseId).update(updateData);
@@ -178,7 +179,7 @@ const updateWarehouse = async (req, res) => {
     const updatedWarehouse = await knex("warehouses")
       .select(
         "warehouses.id",
-        "warehoues.warehouse_name",
+        "warehouses.warehouse_name",
         "warehouses.address",
         "warehouses.city",
         "warehouses.country",
@@ -190,7 +191,7 @@ const updateWarehouse = async (req, res) => {
       .where("warehouses.id", warehouseId)
       .first();
 
-    res.status(200).json({});
+    res.status(200).json(updatedWarehouse);
   } catch (error) {
     res.status(500).json({ message: "Error updating warehouse", error });
   }
