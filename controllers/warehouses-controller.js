@@ -54,6 +54,7 @@ const getWarehouseById = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
 export const createWarehouse = async (req, res) => {
   const {
     warehouse_name,
@@ -117,3 +118,71 @@ export const createWarehouse = async (req, res) => {
 };
 
 export { getAllWarehouses, getWarehouseById };
+=======
+
+const deleteWarehouseByID = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const warehouseItem = await knex("warehouses")
+      .select(
+        "warehouses.id",
+        "warehouses.warehouse_name",
+        "warehouses.address",
+        "warehouses.city",
+        "warehouses.country",
+        "warehouses.contact_name",
+        "warehouses.contact_position",
+        "warehouses.contact_phone",
+        "warehouses.contact_email"
+      )
+      .where("warehouses.id",id)
+      .first();
+
+    if (!warehouseItem) {
+      return res.status(404).json({ message: `Warehouse with ID ${id} not found` });
+    }
+
+    await knex("warehouses")
+      .where("warehouses.id",id)
+      .del();
+    res.status(204).send();
+
+  } catch (error) {
+    res.status(500).json({ message: `Error deleting warehouse with Id: ${id}` });
+  }
+}
+
+
+// GET /api/warehouses/:id/inventories
+const getInventoriesFromWarehouse = async (req, res) => {
+  try {
+    const inventoryOfWarehouse = await knex("warehouses")
+      .join("inventories", "warehouses.id", "=", "inventories.warehouse_id")
+      .select(
+        "warehouses.id",
+        "inventories.item_name",
+        "inventories.category",
+        "inventories.status",
+        "inventories.quantity"
+      )
+      // Here we are getting the id of the item
+      .where("warehouses.id", req.params.id);
+
+    // Inventory not found
+    if (!inventoryOfWarehouse || inventoryOfWarehouse.length === 0) {
+      return res.status(404).json({
+        message: `Inventory of the warehouse was not found with id: ${req.params.id}`,
+      });
+    }
+    //  Only return if the warehouse inventory has been found
+    res.status(200).json(inventoryOfWarehouse);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error getting inventories for a given warehouse." });
+  }
+};
+
+export { getAllWarehouses, getWarehouseById, getInventoriesFromWarehouse, deleteWarehouseByID  };
+
+>>>>>>> develop
