@@ -54,7 +54,6 @@ const getWarehouseById = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
 export const createWarehouse = async (req, res) => {
   const {
     warehouse_name,
@@ -183,7 +182,6 @@ const getInventoriesFromWarehouse = async (req, res) => {
 
 export { getAllWarehouses, getWarehouseById, getInventoriesFromWarehouse, deleteWarehouseByID  };
 
-=======
 
 const deleteWarehouseByID = async (req, res) => {
   const { id } = req.params;
@@ -248,6 +246,5 @@ const getInventoriesFromWarehouse = async (req, res) => {
   }
 };
 
-export { getAllWarehouses, getWarehouseById, getInventoriesFromWarehouse, deleteWarehouseByID  };
+export { getAllWarehouses, getWarehouseById, getInventoriesFromWarehouse, deleteWarehouseByID, createWarehouse };
 
->>>>>>> develop
