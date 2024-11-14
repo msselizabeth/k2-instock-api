@@ -4,6 +4,7 @@ import {
   getAllWarehouses,
   getWarehouseById,
   getInventoriesFromWarehouse,
+  updateWarehouse,
 } from "../controllers/warehouses-controller.js";
 
 const router = express.Router();
@@ -14,6 +15,9 @@ router.get("/", getAllWarehouses);
 // Get one warehouse by ID
 router.get("/:id", getWarehouseById);
 
+//update a warehouse by ID
+router.put("/:id", updateWarehouse);  
+
 
 // deleting warehouse
 router.delete("/:id", deleteWarehouseByID);
@@ -22,3 +26,4 @@ router.delete("/:id", deleteWarehouseByID);
 router.get("/:id/inventories", getInventoriesFromWarehouse);
 
 export default router;
+

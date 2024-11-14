@@ -52,7 +52,6 @@ const getWarehouseById = async (req, res) => {
   }
 };
 
-
 const deleteWarehouseByID = async (req, res) => {
   const { id } = req.params;
   try {
@@ -68,23 +67,23 @@ const deleteWarehouseByID = async (req, res) => {
         "warehouses.contact_phone",
         "warehouses.contact_email"
       )
-      .where("warehouses.id",id)
+      .where("warehouses.id", id)
       .first();
 
     if (!warehouseItem) {
-      return res.status(404).json({ message: `Warehouse with ID ${id} not found` });
+      return res
+        .status(404)
+        .json({ message: `Warehouse with ID ${id} not found` });
     }
 
-    await knex("warehouses")
-      .where("warehouses.id",id)
-      .del();
+    await knex("warehouses").where("warehouses.id", id).del();
     res.status(204).send();
-
   } catch (error) {
-    res.status(500).json({ message: `Error deleting warehouse with Id: ${id}` });
+    res
+      .status(500)
+      .json({ message: `Error deleting warehouse with Id: ${id}` });
   }
-}
-
+};
 
 // GET /api/warehouses/:id/inventories
 const getInventoriesFromWarehouse = async (req, res) => {
@@ -116,5 +115,83 @@ const getInventoriesFromWarehouse = async (req, res) => {
   }
 };
 
-export { getAllWarehouses, getWarehouseById, getInventoriesFromWarehouse, deleteWarehouseByID  };
+const updateWarehouse = async (req, res) => {
+  const warehouseId = req.params.id;
+  const {
+    warehouse_name,
+    address,
+    city,
+    country,
+    contact_name,
+    contact_position,
+    contact_phone,
+    contact_email,
+  } = req.body;
 
+  if (
+    !warehouse_name ||
+    !address ||
+    !city ||
+    !country ||
+    !contact_name ||
+    !contact_position ||
+    !contact_phone ||
+    !contact_email
+  ) {
+    return res.status(400).json({ message: "All fields must be filled out" });
+  }
+
+  try {
+    const existingWarehouse = await knex("warehouses")
+      .where("id", warehouseId)
+      .first();
+    if (!existingWarehouse) {
+      return res.status(404).json({
+        message: `Warehouse with id ${warehouseId} not found`,
+      });
+    }
+
+    const updateData = {
+      warehouse_name,
+      address,
+      city,
+      country,
+      contact_name,
+      contact_position,
+      contact_phone,
+      contact_email,
+    };
+
+    await knex("warehouses").where("id",warehouseID).update(updateData);
+
+    const updatedWarehouse = await knex("warehouses")
+      .select(
+        "warehouses.id",
+        "warehoues.warehouse_name",
+        "warehouses.address",
+        "warehouses.city",
+        "warehouses.country",
+        "warehouses.contact_name",
+        "warehouses.contact_position",
+        "warehouses.contact_phone",
+        "warehouses.contact_email"
+      )
+      .where("warehouses.id,warehosueId")
+      .first();
+
+    res.json({
+      message: "Warehouse updated successfully",
+      warehouse: updatedWarehouse,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating warehouse", error });
+  }
+};
+
+export {
+  getAllWarehouses,
+  getWarehouseById,
+  getInventoriesFromWarehouse,
+  deleteWarehouseByID,
+  updateWarehouse,
+};
