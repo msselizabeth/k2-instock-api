@@ -134,14 +134,6 @@ const deleteWarehouseByID = async (req, res) => {
     const warehouseItem = await knex("warehouses")
       .select(
         "warehouses.id",
-        "warehouses.warehouse_name",
-        "warehouses.address",
-        "warehouses.city",
-        "warehouses.country",
-        "warehouses.contact_name",
-        "warehouses.contact_position",
-        "warehouses.contact_phone",
-        "warehouses.contact_email"
       )
       .where("warehouses.id",id)
       .first();
