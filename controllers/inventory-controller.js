@@ -62,11 +62,6 @@ const deleteInventoryByID = async (req, res) => {
     const inventoryItem = await knex("inventories")
     .select(
       "inventories.id",
-      "inventories.item_name",
-      "inventories.description",
-      "inventories.category",
-      "inventories.status",
-      "inventories.quantity"
     )
     .where("inventories.id", id)
     .first();
