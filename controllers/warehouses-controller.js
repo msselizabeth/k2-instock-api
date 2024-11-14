@@ -7,17 +7,18 @@ const getAllWarehouses = async (req, res) => {
   try {
     const warehouses = await knex("warehouses").select(
       "warehouses.id",
-      "warehouse_name",
-      "warehouse.address",
-      "warehouse.city",
-      "warehouse.country",
-      "warehouse.contact_name",
-      "warehouse.contact_position",
-      "warehouse.contact_phone",
-      "warehouse.contact_email"
+      "warehouses.warehouse_name",
+      "warehouses.address",
+      "warehouses.city",
+      "warehouses.country",
+      "warehouses.contact_name",
+      "warehouses.contact_position",
+      "warehouses.contact_phone",
+      "warehouses.contact_email"
     );
     res.json(warehouses);
   } catch (error) {
+    // console.error("error:", error);
     res.status(500).json({ message: "Error getting warehouses" });
   }
 };
@@ -26,17 +27,17 @@ const getWarehouseById = async (req, res) => {
   try {
     const warehouseItem = await knex("warehouses")
       .select(
-        "warehouse.id",
-        "warehouse_name",
-        "warehouse.address",
-        "warehouse.city",
-        "warehouse.country",
-        "warehouse.contact_name",
-        "warehouse.contact_position",
-        "warehouse.contact_phone",
-        "warehouse.contact_email"
+        "warehouses.id",
+        "warehouses.warehouse_name",
+        "warehouses.address",
+        "warehouses.city",
+        "warehouses.country",
+        "warehouses.contact_name",
+        "warehouses.contact_position",
+        "warehouses.contact_phone",
+        "warehouses.contact_email"
       )
-      .where("warehouse.id", req.params.id)
+      .where("warehouses.id", req.params.id)
       .first();
 
     if (!warehouseItem) {
@@ -47,7 +48,7 @@ const getWarehouseById = async (req, res) => {
 
     res.json(warehouseItem);
   } catch (error) {
-    res.status(500).json({ message: "Error getting single warehouse" });
+    res.status(500).json({ message: "Error getting single warehouse item" });
   }
 };
 
