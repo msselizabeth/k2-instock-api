@@ -52,7 +52,40 @@ const getWarehouseById = async (req, res) => {
   }
 };
 
-// API to GET Inventories for a Given Warehouse
+
+const deleteWarehouseByID = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const warehouseItem = await knex("warehouses")
+      .select(
+        "warehouses.id",
+        "warehouses.warehouse_name",
+        "warehouses.address",
+        "warehouses.city",
+        "warehouses.country",
+        "warehouses.contact_name",
+        "warehouses.contact_position",
+        "warehouses.contact_phone",
+        "warehouses.contact_email"
+      )
+      .where("warehouses.id",id)
+      .first();
+
+    if (!warehouseItem) {
+      return res.status(404).json({ message: `Warehouse with ID ${id} not found` });
+    }
+
+    await knex("warehouses")
+      .where("warehouses.id",id)
+      .del();
+    res.status(204).send();
+
+  } catch (error) {
+    res.status(500).json({ message: `Error deleting warehouse with Id: ${id}` });
+  }
+}
+
+
 // GET /api/warehouses/:id/inventories
 const getInventoriesFromWarehouse = async (req, res) => {
   try {
@@ -83,4 +116,5 @@ const getInventoriesFromWarehouse = async (req, res) => {
   }
 };
 
-export { getAllWarehouses, getWarehouseById, getInventoriesFromWarehouse };
+export { getAllWarehouses, getWarehouseById, getInventoriesFromWarehouse, deleteWarehouseByID  };
+
