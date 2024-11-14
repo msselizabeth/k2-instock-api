@@ -55,4 +55,29 @@ const getInventoryById = async (req, res) => {
   }
 };
 
-export { getAllInventories, getInventoryById };
+
+const deleteInventoryByID = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const inventoryItem = await knex("inventories")
+    .select(
+      "inventories.id",
+    )
+    .where("inventories.id", id)
+    .first();
+
+    if (!inventoryItem) {
+      return res.status(404).json({ message: `Inventory with ID ${id} not found` });
+    }
+
+    await knex("inventories")
+      .where("inventories.id",id)
+      .del();
+    res.status(204).send();
+
+  } catch (error) {
+    res.status(500).json({ message: `Error deleting inventory with Id: ${id}` });
+  }
+}
+
+export { getAllInventories, getInventoryById , deleteInventoryByID};
