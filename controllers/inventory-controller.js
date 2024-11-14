@@ -17,7 +17,7 @@ const getAllInventories = async (req, res) => {
         "inventories.status",
         "inventories.quantity"
       );
-    res.json(inventories);
+    res.status(200).json(inventories);
   } catch (error) {
     res.status(500).json({ message: "Error getting inventories" });
   }
@@ -49,7 +49,7 @@ const getInventoryById = async (req, res) => {
       });
     }
     //  Only return if inventory item has been found
-    res.json(inventoryItem);
+    res.status(200).json(inventoryItem);
   } catch (error) {
     res.status(500).json({ message: "Error getting single inventory item" });
   }
