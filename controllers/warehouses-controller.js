@@ -63,7 +63,8 @@ const createWarehouse = async (req, res) => {
     contact_email,
   } = req.body;
   const emailRegEx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const phoneRegEx = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+  const phoneRegEx = /^(\+?\d{1,2})?\s?\(?(\d{3})\)?[-. ]?(\d{3})[-. ]?(\d{4})$/;
+
   if (!warehouse_name || !warehouse_name.trim()) {
     return res.status(400).json({ message: "Warehouse name is invalid" });
   }
@@ -97,18 +98,18 @@ const createWarehouse = async (req, res) => {
     return res.status(400).json({ message: "Email is invalid" });
   }
   try {
-    const [newWarehouse] = await knex("warehouses")
-      .insert({
-        warehouse_name,
-        address,
-        city,
-        country,
-        contact_name,
-        contact_position,
-        contact_phone,
-        contact_email,
-      })
-      .returning([
+    const [newWarehouseId] = await knex("warehouses").insert({
+      warehouse_name,
+      address,
+      city,
+      country,
+      contact_name,
+      contact_position,
+      contact_phone,
+      contact_email,
+    });
+    const newWarehouse = await knex("warehouses")
+      .select(
         "id",
         "warehouse_name",
         "address",
@@ -117,8 +118,11 @@ const createWarehouse = async (req, res) => {
         "contact_name",
         "contact_position",
         "contact_phone",
-        "contact_email",
-      ]);
+        "contact_email"
+      )
+      .where("id", newWarehouseId)
+      .first();
+
     res.status(201).json(newWarehouse);
   } catch (error) {
     res.status(500).json({ message: "Error creating warehouse" });
