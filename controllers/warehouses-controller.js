@@ -69,13 +69,13 @@ const getInventoriesFromWarehouse = async (req, res) => {
       .where("warehouses.id", req.params.id);
 
     // Inventory not found
-    if (!inventoryOfWarehouse) {
+    if (!inventoryOfWarehouse || inventoryOfWarehouse.length === 0) {
       return res.status(404).json({
-        message: `Inventory of the warehousew was not found with id: ${req.params.id}`,
+        message: `Inventory of the warehouse was not found with id: ${req.params.id}`,
       });
     }
     //  Only return if the warehouse inventory has been found
-    res.json(inventoryOfWarehouse);
+    res.status(200).json(inventoryOfWarehouse);
   } catch (error) {
     res
       .status(500)
