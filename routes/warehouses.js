@@ -4,7 +4,6 @@ import {
   getAllWarehouses,
   getWarehouseById,
   getInventoriesFromWarehouse,
-  getInventoriesFromWarehouse,
   createWarehouse,
 } from "../controllers/warehouses-controller.js";
 
@@ -16,6 +15,8 @@ router.get("/", getAllWarehouses);
 // Get one warehouse by ID
 router.get("/:id", getWarehouseById);
 
+// Create a New Warehouse
+router.post("/", createWarehouse);
 
 // deleting warehouse
 router.delete("/:id", deleteWarehouseByID);
