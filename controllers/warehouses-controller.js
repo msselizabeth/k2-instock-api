@@ -57,7 +57,6 @@ const getWarehouseById = async (req, res) => {
 const getInventoriesFromWarehouse = async (req, res) => {
   try {
     const inventoryOfWarehouse = await knex("warehouses")
-      // Join the two tables to get the warehouse name
       .join("inventories", "warehouses.id", "=", "inventories.warehouse_id")
       .select(
         "warehouses.id",
