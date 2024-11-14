@@ -3,21 +3,6 @@ import configuration from "../knexfile.js";
 
 const knex = initKnex(configuration);
 
-const normalizePhoneNumber = (phone) => {
-
-  const cleaned = phone.replace(/\D/g, "");
-
-  if (cleaned.length === 10) {
-    
-    return `+1 (${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
-  } else {
-    return null; 
-  }
-};
-
-const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-const isValidPhoneNumber = (phone) => /^\+1 \(\d{3}\) \d{3}-\d{4}$/.test(phone)
-
 const getAllWarehouses = async (req, res) => {
   try {
     const warehouses = await knex("warehouses").select(
@@ -77,28 +62,42 @@ const createWarehouse = async (req, res) => {
     contact_phone,
     contact_email,
   } = req.body;
-
+  const emailRegEx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRegEx = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+  if (!warehouse_name || !warehouse_name.trim()) {
+    return res.status(400).json({ message: "Warehouse name is invalid" });
+  }
+  if (!address || !address.trim()) {
+    return res.status(400).json({ message: "Address is invalid" });
+  }
+  if (!city || !city.trim()) {
+    return res.status(400).json({ message: "City is invalid" });
+  }
+  if (!country || !country.trim()) {
+    return res.status(400).json({ message: "Country is invalid" });
+  }
+  if (!contact_name || !contact_name.trim()) {
+    return res.status(400).json({ message: "Contact name is invalid" });
+  }
+  if (!contact_position || !contact_position.trim()) {
+    return res.status(400).json({ message: "Contact position is invalid" });
+  }
   if (
-    !warehouse_name ||
-    !address ||
-    !city ||
-    !country ||
-    !contact_name ||
-    !contact_position ||
     !contact_phone ||
-    !contact_email
+    !contact_phone.trim() ||
+    !phoneRegEx.test(contact_phone)
   ) {
-    return res.status(400).json({ message: "All fields are required"});
+    return res.status(400).json({ message: "Phone is invalid" });
   }
-  if (!isValidEmail(contact_email)) {
-    return res.status(400).json({ message: "Invalid email format." });
+  if (
+    !contact_email ||
+    !contact_email.trim() ||
+    !emailRegEx.test(contact_email)
+  ) {
+    return res.status(400).json({ message: "Email is invalid" });
   }
-  if (!isValidPhoneNumber(contact_phone)) {
-    return res.status(400).json({ message: "Invalid phone number format."});
-  }
-
   try {
-    const [newWarehouse] = await knex("warehouse")
+    const [newWarehouse] = await knex("warehouses")
       .insert({
         warehouse_name,
         address,
@@ -120,37 +119,34 @@ const createWarehouse = async (req, res) => {
         "contact_phone",
         "contact_email",
       ]);
-    
     res.status(201).json(newWarehouse);
   } catch (error) {
-    res.status(500).json({ message: "Ensure creating warehouse" });
+    res.status(500).json({ message: "Error creating warehouse" });
   }
-  
 };
 
 const deleteWarehouseByID = async (req, res) => {
   const { id } = req.params;
   try {
     const warehouseItem = await knex("warehouses")
-      .select(
-        "warehouses.id",
-      )
-      .where("warehouses.id",id)
+      .select("warehouses.id")
+      .where("warehouses.id", id)
       .first();
 
     if (!warehouseItem) {
-      return res.status(404).json({ message: `Warehouse with ID ${id} not found` });
+      return res
+        .status(404)
+        .json({ message: `Warehouse with ID ${id} not found` });
     }
 
-    await knex("warehouses")
-      .where("warehouses.id",id)
-      .del();
+    await knex("warehouses").where("warehouses.id", id).del();
     res.status(204).send();
-
   } catch (error) {
-    res.status(500).json({ message: `Error deleting warehouse with Id: ${id}` });
+    res
+      .status(500)
+      .json({ message: `Error deleting warehouse with Id: ${id}` });
   }
-}
+};
 
 // GET /api/warehouses/:id/inventories
 const getInventoriesFromWarehouse = async (req, res) => {
@@ -182,5 +178,10 @@ const getInventoriesFromWarehouse = async (req, res) => {
   }
 };
 
-export { getAllWarehouses, getWarehouseById, getInventoriesFromWarehouse, deleteWarehouseByID, createWarehouse };
-
+export {
+  getAllWarehouses,
+  getWarehouseById,
+  getInventoriesFromWarehouse,
+  deleteWarehouseByID,
+  createWarehouse,
+};
