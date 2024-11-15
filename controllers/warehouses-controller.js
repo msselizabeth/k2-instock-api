@@ -3,6 +3,7 @@ import configuration from "../knexfile.js";
 
 const knex = initKnex(configuration);
 
+// GET http://localhost:8080/api/warehouses
 const getAllWarehouses = async (req, res) => {
   try {
     const warehouses = await knex("warehouses").select(
@@ -22,6 +23,7 @@ const getAllWarehouses = async (req, res) => {
   }
 };
 
+// GET http://localhost:8080/api/warehouses/2
 const getWarehouseById = async (req, res) => {
   try {
     const warehouseItem = await knex("warehouses")
@@ -51,7 +53,7 @@ const getWarehouseById = async (req, res) => {
   }
 };
 
-
+// POST http://localhost:8080/api/warehouses
 const createWarehouse = async (req, res) => {
   const {
     warehouse_name,
@@ -130,7 +132,7 @@ const createWarehouse = async (req, res) => {
   }
 };
 
-
+// DELETE http://localhost:8080/api/warehouses/2
 const deleteWarehouseByID = async (req, res) => {
   const { id } = req.params;
   try {
@@ -195,7 +197,7 @@ const getInventoriesFromWarehouse = async (req, res) => {
   }
 };
 
-
+// PUT /api/inventories/:id
 const updateWarehouse = async (req, res) => {
   const warehouseId = req.params.id;
   const {
