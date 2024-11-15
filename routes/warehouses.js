@@ -5,6 +5,7 @@ import {
   getWarehouseById,
   getInventoriesFromWarehouse,
   updateWarehouse,
+  createWarehouse,
 } from "../controllers/warehouses-controller.js";
 
 const router = express.Router();
@@ -18,6 +19,8 @@ router.get("/:id", getWarehouseById);
 //update a warehouse by ID
 router.put("/:id", updateWarehouse);  
 
+// Create a New Warehouse
+router.post("/", createWarehouse);
 
 // deleting warehouse
 router.delete("/:id", deleteWarehouseByID);

@@ -18,7 +18,6 @@ const getAllWarehouses = async (req, res) => {
     );
     res.json(warehouses);
   } catch (error) {
-    // console.error("error:", error);
     res.status(500).json({ message: "Error getting warehouses" });
   }
 };
@@ -52,6 +51,86 @@ const getWarehouseById = async (req, res) => {
   }
 };
 
+
+const createWarehouse = async (req, res) => {
+  const {
+    warehouse_name,
+    address,
+    city,
+    country,
+    contact_name,
+    contact_position,
+    contact_phone,
+    contact_email,
+  } = req.body;
+  const emailRegEx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRegEx = /^(\+?\d{1,2})?\s?\(?(\d{3})\)?[-. ]?(\d{3})[-. ]?(\d{4})$/;
+
+  if (!warehouse_name || !warehouse_name.trim()) {
+    return res.status(400).json({ message: "Warehouse name is invalid" });
+  }
+  if (!address || !address.trim()) {
+    return res.status(400).json({ message: "Address is invalid" });
+  }
+  if (!city || !city.trim()) {
+    return res.status(400).json({ message: "City is invalid" });
+  }
+  if (!country || !country.trim()) {
+    return res.status(400).json({ message: "Country is invalid" });
+  }
+  if (!contact_name || !contact_name.trim()) {
+    return res.status(400).json({ message: "Contact name is invalid" });
+  }
+  if (!contact_position || !contact_position.trim()) {
+    return res.status(400).json({ message: "Contact position is invalid" });
+  }
+  if (
+    !contact_phone ||
+    !contact_phone.trim() ||
+    !phoneRegEx.test(contact_phone)
+  ) {
+    return res.status(400).json({ message: "Phone is invalid" });
+  }
+  if (
+    !contact_email ||
+    !contact_email.trim() ||
+    !emailRegEx.test(contact_email)
+  ) {
+    return res.status(400).json({ message: "Email is invalid" });
+  }
+  try {
+    const [newWarehouseId] = await knex("warehouses").insert({
+      warehouse_name,
+      address,
+      city,
+      country,
+      contact_name,
+      contact_position,
+      contact_phone,
+      contact_email,
+    });
+    const newWarehouse = await knex("warehouses")
+      .select(
+        "id",
+        "warehouse_name",
+        "address",
+        "city",
+        "country",
+        "contact_name",
+        "contact_position",
+        "contact_phone",
+        "contact_email"
+      )
+      .where("id", newWarehouseId)
+      .first();
+
+    res.status(201).json(newWarehouse);
+  } catch (error) {
+    res.status(500).json({ message: "Error creating warehouse" });
+  }
+};
+
+
 const deleteWarehouseByID = async (req, res) => {
   const { id } = req.params;
   try {
@@ -67,6 +146,7 @@ const deleteWarehouseByID = async (req, res) => {
         "warehouses.contact_phone",
         "warehouses.contact_email"
       )
+      .select("warehouses.id")
       .where("warehouses.id", id)
       .first();
 
@@ -114,6 +194,7 @@ const getInventoriesFromWarehouse = async (req, res) => {
       .json({ message: "Error getting inventories for a given warehouse." });
   }
 };
+
 
 const updateWarehouse = async (req, res) => {
   const warehouseId = req.params.id;
@@ -203,4 +284,5 @@ export {
   getInventoriesFromWarehouse,
   deleteWarehouseByID,
   updateWarehouse,
+  createWarehouse,
 };
