@@ -3,6 +3,7 @@ import {
   deleteInventoryByID,
   getAllInventories,
   getInventoryById,
+  updateInventory,
   createInventory,
 } from "../controllers/inventory-controller.js";
 
@@ -13,6 +14,8 @@ router.get("/", getAllInventories);
 
 // Route to get single inventory item
 router.get("/:id", getInventoryById);
+
+router.put("/:id", updateInventory);
 
 // Route to create a new inventory item 
 router.post("/", createInventory);

@@ -3,6 +3,7 @@ import configuration from "../knexfile.js";
 
 const knex = initKnex(configuration);
 
+// GET http://localhost:8080/api/warehouses
 const getAllWarehouses = async (req, res) => {
   try {
     const warehouses = await knex("warehouses").select(
@@ -22,6 +23,7 @@ const getAllWarehouses = async (req, res) => {
   }
 };
 
+// GET http://localhost:8080/api/warehouses/2
 const getWarehouseById = async (req, res) => {
   try {
     const warehouseItem = await knex("warehouses")
@@ -51,6 +53,7 @@ const getWarehouseById = async (req, res) => {
   }
 };
 
+// POST http://localhost:8080/api/warehouses
 const createWarehouse = async (req, res) => {
   const {
     warehouse_name,
@@ -129,10 +132,22 @@ const createWarehouse = async (req, res) => {
   }
 };
 
+// DELETE http://localhost:8080/api/warehouses/2
 const deleteWarehouseByID = async (req, res) => {
   const { id } = req.params;
   try {
     const warehouseItem = await knex("warehouses")
+      .select(
+        "warehouses.id",
+        "warehouses.warehouse_name",
+        "warehouses.address",
+        "warehouses.city",
+        "warehouses.country",
+        "warehouses.contact_name",
+        "warehouses.contact_position",
+        "warehouses.contact_phone",
+        "warehouses.contact_email"
+      )
       .select("warehouses.id")
       .where("warehouses.id", id)
       .first();
@@ -182,10 +197,94 @@ const getInventoriesFromWarehouse = async (req, res) => {
   }
 };
 
+// PUT /api/inventories/:id
+const updateWarehouse = async (req, res) => {
+  const warehouseId = req.params.id;
+  const {
+    warehouse_name,
+    address,
+    city,
+    country,
+    contact_name,
+    contact_position,
+    contact_phone,
+    contact_email,
+  } = req.body;
+
+  if (
+    !warehouse_name.trim() ||
+    !address.trim() ||
+    !city.trim() ||
+    !country.trim() ||
+    !contact_name.trim() ||
+    !contact_position.trim()
+  ) {
+    return res.status(400).json({ message: "All fields must be filled out" });
+  }
+
+  // Email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!contact_email.trim() || !emailRegex.test(contact_email)) {
+    return res.status(400).json({ message: "Invalid email format" });
+  }
+
+  // Phone number validation
+  const phoneRegex =
+    /^(\+?\d{1,2})?\s?\(?(\d{3})\)?[-. ]?(\d{3})[-. ]?(\d{4})$/;
+
+  if (!contact_phone.trim() || !phoneRegex.test(contact_phone)) {
+    return res.status(400).json({ message: "Invalid phone number format" });
+  }
+
+  try {
+    const existingWarehouse = await knex("warehouses")
+      .where("id", warehouseId)
+      .first();
+    if (!existingWarehouse) {
+      return res.status(404).json({
+        message: `Warehouse with id ${warehouseId} not found`,
+      });
+    }
+
+    const updateData = {
+      warehouse_name: warehouse_name,
+      address: address,
+      city: city,
+      country: country,
+      contact_name: contact_name,
+      contact_position: contact_position,
+      contact_phone: contact_phone,
+      contact_email: contact_email,
+    };
+
+    await knex("warehouses").where("id", warehouseId).update(updateData);
+
+    const updatedWarehouse = await knex("warehouses")
+      .select(
+        "warehouses.id",
+        "warehouses.warehouse_name",
+        "warehouses.address",
+        "warehouses.city",
+        "warehouses.country",
+        "warehouses.contact_name",
+        "warehouses.contact_position",
+        "warehouses.contact_phone",
+        "warehouses.contact_email"
+      )
+      .where("warehouses.id", warehouseId)
+      .first();
+
+    res.status(200).json(updatedWarehouse);
+  } catch (error) {
+    res.status(500).json({ message: "Error updating warehouse", error });
+  }
+};
+
 export {
   getAllWarehouses,
   getWarehouseById,
   getInventoriesFromWarehouse,
   deleteWarehouseByID,
+  updateWarehouse,
   createWarehouse,
 };

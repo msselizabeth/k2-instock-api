@@ -4,6 +4,7 @@ import {
   getAllWarehouses,
   getWarehouseById,
   getInventoriesFromWarehouse,
+  updateWarehouse,
   createWarehouse,
 } from "../controllers/warehouses-controller.js";
 
@@ -15,6 +16,9 @@ router.get("/", getAllWarehouses);
 // Get one warehouse by ID
 router.get("/:id", getWarehouseById);
 
+//update a warehouse by ID
+router.put("/:id", updateWarehouse);  
+
 // Create a New Warehouse
 router.post("/", createWarehouse);
 
@@ -25,3 +29,4 @@ router.delete("/:id", deleteWarehouseByID);
 router.get("/:id/inventories", getInventoriesFromWarehouse);
 
 export default router;
+
