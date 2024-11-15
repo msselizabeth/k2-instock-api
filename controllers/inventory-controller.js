@@ -55,29 +55,92 @@ const getInventoryById = async (req, res) => {
   }
 };
 
+const createInventory = async (req, res) => {
+  const { item_name, description, category, status, quantity, warehouse_id } =
+    req.body;
+
+  if (
+    !warehouse_id ||
+    !item_name.trim() ||
+    !description.trim() ||
+    !category.trim() ||
+    quantity === undefined ||
+    quantity === null ||
+    quantity === ""
+  ) {
+    return res.status(400).json({ message: "All fields must be filled out" });
+  }
+
+  if (isNaN(quantity) || !Number.isFinite(Number(quantity))) {
+    return res.status(400).json({ message: "Quantity must be a valid number" });
+  }
+
+  const warehouseExists = await knex("warehouses")
+    .where("id", warehouse_id)
+    .first();
+  if (!warehouseExists) {
+    return res
+      .status(400)
+      .json({ message: `Warehouse with ID ${warehouse_id} does not exist` });
+  }
+
+  try {
+    const status = quantity === 0 ? "Out Of Stock" : "In Stock";
+    
+    const [newInventoryId] = await knex("inventories").insert({
+      warehouse_id,
+      item_name,
+      description,
+      category,
+      status,
+      quantity: Number(quantity),
+    });
+
+    const newInventory = await knex("inventories")
+      .select(
+        "id",
+        "item_name",
+        "description",
+        "category",
+        "status",
+        "quantity",
+        "warehouse_id"
+      )
+      .where("id", newInventoryId)
+      .first();
+
+    res.status(201).json(newInventory);
+  } catch (error) {
+    res.status(500).json({ message: "Error creating inventory item" });
+  }
+};
 
 const deleteInventoryByID = async (req, res) => {
   const { id } = req.params;
   try {
     const inventoryItem = await knex("inventories")
-    .select(
-      "inventories.id",
-    )
-    .where("inventories.id", id)
-    .first();
+      .select("inventories.id")
+      .where("inventories.id", id)
+      .first();
 
     if (!inventoryItem) {
-      return res.status(404).json({ message: `Inventory with ID ${id} not found` });
+      return res
+        .status(404)
+        .json({ message: `Inventory with ID ${id} not found` });
     }
 
-    await knex("inventories")
-      .where("inventories.id",id)
-      .del();
+    await knex("inventories").where("inventories.id", id).del();
     res.status(204).send();
-
   } catch (error) {
-    res.status(500).json({ message: `Error deleting inventory with Id: ${id}` });
+    res
+      .status(500)
+      .json({ message: `Error deleting inventory with Id: ${id}` });
   }
-}
+};
 
-export { getAllInventories, getInventoryById , deleteInventoryByID};
+export {
+  getAllInventories,
+  getInventoryById,
+  deleteInventoryByID,
+  createInventory,
+};
