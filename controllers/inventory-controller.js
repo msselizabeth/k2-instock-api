@@ -61,18 +61,21 @@ const createInventory = async (req, res) => {
 
   if (
     !warehouse_id ||
+    typeof item_name !== "string" ||
     !item_name.trim() ||
+    typeof description !== "string" ||
     !description.trim() ||
+    typeof category !== "string" ||
     !category.trim() ||
     quantity === undefined ||
     quantity === null ||
-    quantity === ""
+    quantity === "" ||
+    isNaN(quantity) ||
+    !Number.isFinite(Number(quantity))
   ) {
-    return res.status(400).json({ message: "All fields must be filled out" });
-  }
-
-  if (isNaN(quantity) || !Number.isFinite(Number(quantity))) {
-    return res.status(400).json({ message: "Quantity must be a valid number" });
+    return res
+      .status(400)
+      .json({ message: "All fields must be filled out and valid" });
   }
 
   const warehouseExists = await knex("warehouses")
@@ -86,7 +89,7 @@ const createInventory = async (req, res) => {
 
   try {
     const status = quantity === 0 ? "Out Of Stock" : "In Stock";
-    
+
     const [newInventoryId] = await knex("inventories").insert({
       warehouse_id,
       item_name,
