@@ -66,7 +66,8 @@ const createWarehouse = async (req, res) => {
     contact_email,
   } = req.body;
   const emailRegEx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const phoneRegEx = /^(\+?\d{1,2})?\s?\(?(\d{3})\)?[-. ]?(\d{3})[-. ]?(\d{4})$/;
+  const phoneRegEx =
+    /^(\+?\d{1,2})?\s?\(?(\d{3})\)?[-. ]?(\d{3})[-. ]?(\d{4})$/;
 
   if (!warehouse_name || !warehouse_name.trim()) {
     return res.status(400).json({ message: "Warehouse name is invalid" });
@@ -173,7 +174,7 @@ const getInventoriesFromWarehouse = async (req, res) => {
     const inventoryOfWarehouse = await knex("warehouses")
       .join("inventories", "warehouses.id", "=", "inventories.warehouse_id")
       .select(
-        "warehouses.id",
+        "inventories.id",
         "inventories.item_name",
         "inventories.category",
         "inventories.status",
