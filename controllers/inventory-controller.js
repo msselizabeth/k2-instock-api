@@ -57,7 +57,7 @@ const getInventoryById = async (req, res) => {
 
 // Create inventory
 const createInventory = async (req, res) => {
-  const { item_name, description, category, status, quantity, warehouse_id } =
+  let { item_name, description, category, status, quantity, warehouse_id } =
     req.body;
   if (
     !warehouse_id ||
@@ -66,16 +66,18 @@ const createInventory = async (req, res) => {
     typeof description !== "string" ||
     !description.trim() ||
     typeof category !== "string" ||
-    !category.trim() ||
-    quantity === undefined ||
-    quantity === null ||
-    quantity === "" ||
-    isNaN(quantity) ||
-    !Number.isFinite(Number(quantity))
+    !category.trim()
   ) {
     return res
       .status(400)
       .json({ message: "All fields must be filled out and valid" });
+  }
+  if (
+    isNaN(quantity) ||
+    !Number.isFinite(Number(quantity)) ||
+    !quantity
+  ) {
+    quantity = 0;
   }
   const warehouseExists = await knex("warehouses")
     .where("id", warehouse_id)
